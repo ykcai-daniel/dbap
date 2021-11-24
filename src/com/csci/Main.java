@@ -20,6 +20,5 @@ public class Main {
 			e.printStackTrace();
 		}
 		AdminMethods am=new AdminMethods(con);
-		am.deleteAllTable();
 	}
 }
