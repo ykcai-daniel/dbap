@@ -9,24 +9,33 @@ import java.util.Scanner;
 
 public class AdminMethods {
     private Connection con;
-
+	
     public AdminMethods(Connection con) {
         this.con = con;
-        while(1){
+        while(true){
 		int check = 0;
-		system.out.println()//menu
+		system.out.println("-----Operations for administrator menu-----");
+		system.out.println("1. Create all tables");
+		system.out.println("2. Delete all tables");
+		system.out.println("3. Load from datafile");
+		system.out.println("4. Show number of records");
+		system.out.println("5. Return to the main menu");
+		system.out.print("Enter Your Choice:");
 
 		Scanner sc = new Scanner(System.in);
 		int choice = sc.nexInt();
 		switch(choice){
                 	case 1:
-				AdminMethods am=new AdminMethods(con);
+				createTable();
        				break;
                 	case 2:
+				deleteAllTable();
        				break;
                 	case 3:
+				loadData(path);
        				break; 
                 	case 4:
+				showNumberOfRecords()
                     		break;
                 	case 5:
 				check = 999;
