@@ -29,6 +29,7 @@ public class AdminMethods {
             }
             else if(choice==3){
                 sc.nextLine();
+                System.out.println("");
                 System.out.print("Type in the Source Data Folder Path:");
                 String path=sc.nextLine();
                 loadData(path);
@@ -50,7 +51,7 @@ public class AdminMethods {
     }
 
     private void createTable() throws SQLException {
-        // need to add some code to check success or fail.
+        /* need to add some code to check success or fail. */
         Statement stmt = con.createStatement();
         String str = "CREATE TABLE user_category( " +
             "ucid Integer, " +
@@ -60,7 +61,9 @@ public class AdminMethods {
             "CHECK (max_books<100 AND max_books>0), " +
             "CHECK (loan_period<100 AND loan_period>0)," +
             "CHECK (ucid<10 AND ucid > 0))";
-        stmt.executeUpdate(str);
+        try{
+            stmt.executeUpdate(str);
+        }catch(Exception e){/*do nothing*/}
         
         str = "CREATE TABLE libuser( " +
             "libuid VARCHAR(10), " +
@@ -71,14 +74,18 @@ public class AdminMethods {
             "PRIMARY KEY (libuid)," +
             "FOREIGN KEY (ucid) REFERENCES user_category(ucid)," +
             "CHECK (AGE<1000 AND AGE>0))";/*three digit age?*/
-        stmt.executeUpdate(str);
+        try{
+            stmt.executeUpdate(str);
+        }catch(Exception e){/*do nothing*/}
         
         str = "CREATE TABLE book_category( " +
             "bcid INTEGER, " +
             "bcname VARCHAR(30) NOT NULL, " +
             "PRIMARY KEY (bcid)," +
             "CHECK(bcid>0 AND bcid<10))";
-        stmt.executeUpdate(str);
+        try{
+            stmt.executeUpdate(str);
+        }catch(Exception e){/*do nothing*/}
         
         str = "CREATE TABLE book( " +
             "callnum VARCHAR(8), " +
@@ -93,17 +100,21 @@ public class AdminMethods {
         /*rating should be updated after returning book, rating can be null before first borrow!!!!!*/
         /*tborrow needs update with each borrow!!!!!!*/
         /*we can do these updates with an addition UPDATE statement*/
-        //callnum is a string that length is 8
-        //publish is not date type actually. The given format in data is different from the real date format.
 
-        stmt.executeUpdate(str);
+        /* callnum is a string that length is 8 */
+        /* publish is not date type actually. The given format in data is different from the real date format. */
+        try{
+            stmt.executeUpdate(str);
+        }catch(Exception e){/*do nothing*/}
         
         str = "CREATE TABLE copy( " +
             "callnum VARCHAR(8), " +
             "copynum INTEGER, " +
             "PRIMARY KEY (callnum,copynum), " +
             "FOREIGN KEY (callnum) REFERENCES book(callnum))";  /*what is copynum*/
-        stmt.executeUpdate(str);
+        try{
+            stmt.executeUpdate(str);
+        }catch(Exception e){/*do nothing*/}
         
         str = "CREATE TABLE borrow( " +
             "libuid VARCHAR(10), " +
@@ -114,54 +125,60 @@ public class AdminMethods {
             "PRIMARY KEY (libuid,callnum,copynum,checkout), " +
             "FOREIGN KEY (libuid) REFERENCES libuser(libuid), " +
             "FOREIGN KEY (callnum,copynum) REFERENCES copy(callnum, copynum))"; /*return can be null!!!!!*/
-        stmt.executeUpdate(str);
+        try{
+            stmt.executeUpdate(str);
+        }catch(Exception e){/*do nothing*/}
 
-        // Non-empty string with at most 25 characters for each author. EACH!!!
+        /* Non-empty string with at most 25 characters for each author. EACH!!! */
         str = "CREATE TABLE authorship( " +
             "aname VARCHAR(100), " +
             "callnum VARCHAR(8), " +
             "PRIMARY KEY (aname,callnum), " +
             "FOREIGN KEY (callnum) REFERENCES book(callnum))";
-        stmt.executeUpdate(str);
+        try{
+            stmt.executeUpdate(str);
+        }catch(Exception e){/*do nothing*/}
         stmt.close();
         System.out.println("Processing... Done. Database is initialized.");
     }
 
     private void deleteAllTable() throws SQLException {
-        //tables should be dropped in an order that avoid violating foreign key constraints
+        /* tables should be dropped in an order that avoid violating foreign key constraints */
         String[] tables={"borrow","libuser","user_category","copy","authorship","book","book_category"};
         Statement stmt=con.createStatement();
         for(int i=0;i<tables.length;i++){
-            stmt.executeUpdate("DROP TABLE "+tables[i]);
+            try{
+                stmt.executeUpdate("DROP TABLE "+tables[i]);
+            }catch(Exception e){/*do nothing*/}
         }
         stmt.close();
         System.out.println("Processing... Done. Database is removed.");
-
     }
 
     private void loadData(String path) throws SQLException, IOException {
-        loadUserCatagory(path);
-        loadLibuser(path);
-        loadBookCategory(path);
-        loadBook(path);
-        loadCopy(path);
-        loadBorrow(path);
-        loadAuthorship(path);
+        try{
+            loadUserCatagory(path);
+            loadLibuser(path);
+            loadBookCategory(path);
+            loadBook(path);
+            loadCopy(path);
+            loadBorrow(path);
+            loadAuthorship(path);
+            System.out.println("Processing...Done. Data is inputted to the database.");
+        }catch(FileNotFoundException e){
+            System.out.println("Cannot find the datafile.");
+        }
     }
 
     private void loadUserCatagory(String path) throws IOException, SQLException {
-        File f = new File(path+"/user_category.txt");
-        BufferedReader br=new BufferedReader(new FileReader(f));
+        File f = new File(path + "/user_category.txt");
+        BufferedReader br = new BufferedReader(new FileReader(f));
         String inputLine;
-        Statement stmt= con.createStatement();
-        while((inputLine= br.readLine())!=null){
-            //System.out.println(inputLine);
-            //test if the read success.
-            String[] splitedInput=inputLine.split("\t");
-            //System.out.println(splitedInput[0]+"!!!"+splitedInput[1]+"!!!"+splitedInput[2]);
-            //test if the seperation success.
-            String inputSQL="INSERT INTO user_category " +
-                            "VALUES("+splitedInput[0]+","+splitedInput[1]+","+splitedInput[2]+")";
+        Statement stmt = con.createStatement();
+        while ((inputLine = br.readLine()) != null) {
+            String[] splitedInput = inputLine.split("\t");
+            String inputSQL = "INSERT INTO user_category " +
+                    "VALUES(" + splitedInput[0] + "," + splitedInput[1] + "," + splitedInput[2] + ")";
             stmt.executeUpdate(inputSQL);
         }
         stmt.close();
@@ -174,7 +191,7 @@ public class AdminMethods {
         Statement stmt= con.createStatement();
         while((inputLine= br.readLine())!=null){
             inputLine = inputLine.replace("\'","\\\'");
-            // To avoid interference of char '
+            /* To avoid interference of char ' */
             String[] splitedInput=inputLine.split("\t");
             String inputSQL="INSERT INTO libuser " +
                     "VALUES ('"+splitedInput[0]+"','" +
@@ -230,7 +247,7 @@ public class AdminMethods {
         while((inputLine= br.readLine())!=null){
             inputLine = inputLine.replace("\'","\\\'");
             String[] splitedInput=inputLine.split("\t");
-            //Different from other table. Copynum means how many copy we have. For each copy, we need to insert a tuple.
+            /*Different from other table. Copynum means how many copy we have. For each copy, we need to insert a tuple. */
             int callnum = Integer.parseInt(splitedInput[1]);
             for(int i=1; i <= callnum; i++){
                 String inputSQL="INSERT INTO copy " +
@@ -275,7 +292,31 @@ public class AdminMethods {
         stmt.close();
     }
 
-    private void showNumberOfRecords(){
-
+    private void showNumberOfRecords() throws  SQLException {
+        Statement stmt = con.createStatement();
+        System.out.println("Number of records in each table:");
+        ResultSet rset = stmt.executeQuery("SELECT COUNT(*) FROM user_category");
+        rset.next();
+        System.out.println("user_category (ucid, max, period): "+rset.getInt(1));
+        rset = stmt.executeQuery("SELECT COUNT(*) FROM libuser");
+        rset.next();
+        System.out.println("libuser (libuid, name, age, address, ucid): "+rset.getInt(1));
+        rset = stmt.executeQuery("SELECT COUNT(*) FROM book_category");
+        rset.next();
+        System.out.println("book_category (bcid, bcname): "+rset.getInt(1));
+        rset = stmt.executeQuery("SELECT COUNT(*) FROM book");
+        rset.next();
+        System.out.println("book (callnum, title, publish, rating, tborrowed, bcid): "+rset.getInt(1));
+        rset = stmt.executeQuery("SELECT COUNT(*) FROM copy");
+        rset.next();
+        System.out.println("copy (callnum, copynum): "+rset.getInt(1));
+        rset = stmt.executeQuery("SELECT COUNT(*) FROM borrow");
+        rset.next();
+        System.out.println("borrow (libuid, callnum, copynum, checkout, return): "+rset.getInt(1));
+        rset = stmt.executeQuery("SELECT COUNT(*) FROM authorship");
+        rset.next();
+        System.out.println("authorship (aname, callnum): "+rset.getInt(1));
+        rset.close();
+        stmt.close();
     }
 }
