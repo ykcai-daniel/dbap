@@ -13,28 +13,28 @@ public class AdminMethods {
     public AdminMethods(Connection con) {
         this.con = con;
         while(1){
-			int check = 0;
-			system.out.println()//menu
+		int check = 0;
+		system.out.println()//menu
 
-			Scanner sc = new Scanner(System.in);
-			int choice = sc.nexInt();
-			switch(choice){
-                case 1:
-					AdminMethods am=new AdminMethods(con);
+		Scanner sc = new Scanner(System.in);
+		int choice = sc.nexInt();
+		switch(choice){
+                	case 1:
+				AdminMethods am=new AdminMethods(con);
        				break;
-                case 2:
+                	case 2:
        				break;
-                case 3:
+                	case 3:
        				break; 
-                case 4:
-                    break;
-                case 5:
-					check = 999;
-       			    break; 
-			}
-			if(check == 999)
-				break;
+                	case 4:
+                    		break;
+                	case 5:
+				check = 999;
+       			    	break; 
 		}
+		if(check == 999)
+				break;
+	}
     }
 
     public void createTable(){
