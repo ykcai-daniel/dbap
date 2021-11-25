@@ -8,47 +8,53 @@ import java.sql.Statement;
 import java.util.Scanner;
 
 public class AdminMethods {
-    private Connection con;
-	
-    public AdminMethods(Connection con) {
-        this.con = con;
-        while(true){
-		int check = 0;
-		system.out.println("-----Operations for administrator menu-----");
-		system.out.println("1. Create all tables");
-		system.out.println("2. Delete all tables");
-		system.out.println("3. Load from datafile");
-		system.out.println("4. Show number of records");
-		system.out.println("5. Return to the main menu");
-		system.out.print("Enter Your Choice:");
+    private final Connection con;
 
-		Scanner sc = new Scanner(System.in);
-		int choice = sc.nexInt();
-		switch(choice){
-                	case 1:
-				createTable();
-       				break;
-                	case 2:
-				deleteAllTable();
-       				break;
-                	case 3:
-				loadData(path);
-       				break; 
-                	case 4:
-				showNumberOfRecords()
-                    		break;
-                	case 5:
-				check = 999;
-       			    	break; 
-		}
-		if(check == 999)
-				break;
-	}
+    public void adminLoop() throws SQLException, IOException {
+        while(true){
+            System.out.println("-----Operations for administrator menu-----");
+            System.out.println("1. Create all tables");
+            System.out.println("2. Delete all tables");
+            System.out.println("3. Load from datafile");
+            System.out.println("4. Show number of records");
+            System.out.println("5. Return to the main menu");
+            System.out.print("Enter Your Choice:");
+            Scanner sc = new Scanner(System.in);
+            int choice = sc.nextInt();
+            switch(choice){
+                case 1:
+                    createTable();
+                    break;
+                case 2:
+                    deleteAllTable();
+                    break;
+                case 3:
+                    String path=sc.nextLine();
+                    loadData(path);
+                    break;
+                case 4:
+                    showNumberOfRecords();
+                    break;
+                case 5:
+                    //need to break out the loop!!!
+                    break;
+                default:
+                    System.out.print("Illegal Input!");
+            }
+            if(choice==5){
+                break;
+            }
+
+        }
+    }
+	
+    public AdminMethods(Connection con) throws SQLException {
+        this.con = con;
     }
 
-    public void createTable(){
+    private void createTable() throws SQLException {
         // need to add some code to check success or fail.
-        Statement stmt = conn.createstatement();
+        Statement stmt = con.createStatement();
         String str = "CREATE TABLE user_category( " +
             "ucid Integer, " +
             "max_books Integer NOT NULL, " +
@@ -113,13 +119,13 @@ public class AdminMethods {
             "aname VARCHAR(25), " +
             "callnum INTEGER, " +
             "PRIMARY KEY (aname,callnum), " +
-            "FOREIGN KEY (callnum) REFERENCES book(callnum))" +;
+            "FOREIGN KEY (callnum) REFERENCES book(callnum))";
         stmt.executeUpdate(str);
         
-        system.out.println("Processing... Done. Database is initialized.");
+        System.out.println("Processing... Done. Database is initialized.");
     }
 
-    public void deleteAllTable() throws SQLException {
+    private void deleteAllTable() throws SQLException {
         //tables should be dropped in an order that avoid violating foreign key constraints
         String[] tables={"borrow","libuser","user_category","copy","authorship","book","book_category"};
         Statement st= null;
@@ -129,7 +135,7 @@ public class AdminMethods {
         }
     }
 
-    public void loadData(String path) throws SQLException, IOException {
+    private void loadData(String path) throws SQLException, IOException {
         File fUserCategory=new File(path+"\\user_category.txt");
         loadUserCatagory(fUserCategory);
 
@@ -149,7 +155,7 @@ public class AdminMethods {
 
     }
 
-    public void showNumberOfRecords(){
+    private void showNumberOfRecords(){
 
     }
 }
