@@ -19,9 +19,16 @@ public class Main {
 		}catch(ClassNotFoundException e){
 			e.printStackTrace();
 		}
-		while(1){
+		system.out.println("Welcome to Library Inquiry System!");
+		while(ture){
 			int check = 0;
-			system.out.println()//menu
+			system.out.println("-----Main menu-----");
+			system.out.println("What kinds of operations would you like to perform?");
+			system.out.println("1. Operations for Administrator");
+			system.out.println("2. Operations for Library User");
+			system.out.println("3. Operations for Librarian");
+			system.out.println("4. Exit this program");
+			system.out.print("Enter Your Choice:");	//menu
 			
 			Scanner sc = new Scanner(System.in);
 			int choice = sc.nexInt();
@@ -30,8 +37,10 @@ public class Main {
 					AdminMethods am=new AdminMethods(con);
        					break;
     				case 2 :
+					LibrarianMethod lm=new LibrarianMethod(con);
        					break; 
 				case 3 :
+					UserMethods um=new UserMethods(con);
        					break; 
 				case 4 :
 					check = 999;
