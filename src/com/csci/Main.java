@@ -19,6 +19,27 @@ public class Main {
 		}catch(ClassNotFoundException e){
 			e.printStackTrace();
 		}
-		AdminMethods am=new AdminMethods(con);
+		while(1){
+			int check = 0;
+			system.out.println()//menu
+			
+			Scanner sc = new Scanner(System.in);
+			int choice = sc.nexInt();
+			switch(choice){
+    				case 1 :
+					AdminMethods am=new AdminMethods(con);
+       					break;
+    				case 2 :
+       					break; 
+				case 3 :
+       					break; 
+				case 4 :
+					check = 999;
+       					break; 
+			}
+			if(check == 999)
+				break;
+		}
+		con.close();
 	}
 }
