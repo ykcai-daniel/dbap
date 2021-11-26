@@ -26,7 +26,7 @@ public class Main {
 		UserMethods um=new UserMethods(con);
 		System.out.println("Welcome to Library Inquiry System!");
 		while(true){
-			int check = 0;
+			System.out.println();
 			System.out.println("-----Main menu-----");
 			System.out.println("What kinds of operations would you like to perform?");
 			System.out.println("1. Operations for Administrator");
