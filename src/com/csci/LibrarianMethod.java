@@ -5,17 +5,23 @@ import java.sql.Connection;
 public class LibrarianMethod {
     private Connection con;
 
+    public void libLoop(){
+        while(true){
+            break;
+        }
+    }
+
     public LibrarianMethod(Connection con) {
         this.con = con;
     }
 
-    public void borrowBook(String callNumber,int copyNumber, String userID){
+    private void borrowBook(String callNumber,int copyNumber, String userID){
 
     }
-    public void returnBook(String callNumber,int copyNumber, String userID){
+    private void returnBook(String callNumber,int copyNumber, String userID){
 
     }
-    public void listALl(){
+    private void listALl(){
 
     }
 }

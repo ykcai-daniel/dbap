@@ -5,23 +5,28 @@ package com.csci;
 import java.sql.Connection;
 
 public class UserMethods {
+
     Connection con;
+
+    public void userLoop(){
+
+    }
     
 
     public UserMethods(Connection con) {
         this.con = con;
     }
 
-    public void searchForBookByCallNumber(String callNumber){
+    private void searchForBookByCallNumber(String callNumber){
 
     }
-    public void searchForBookByTitle(String title){
+    private void searchForBookByTitle(String title){
 
     }
-    public void searchForBookByAuthor(String author){
+    private void searchForBookByAuthor(String author){
 
     }
-    public void showBorrowRecord(String userID){
+    private void showBorrowRecord(String userID){
 
     }
 
