@@ -40,10 +40,10 @@ public class Main {
 				am.adminLoop();
 			}
 			else if(choice==2){
-				lm.libLoop();
+				um.userLoop();
 			}
 			else if(choice==3){
-				um.userLoop();
+				lm.libLoop();
 			}
 			else if(choice==4){
 				break;
