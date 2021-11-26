@@ -24,6 +24,7 @@ public class AdminMethods {
             System.out.println("4. Show number of records");
             System.out.println("5. Return to the main menu");
             System.out.print("Enter Your Choice:");
+            Scanner sc = new Scanner(System.in);
             int choice = Integer.parseInt(sc.nextLine());
             if(choice==1){
                 createTable();
@@ -32,7 +33,9 @@ public class AdminMethods {
                 deleteAllTable();
             }
             else if(choice==3){
-                loadData();
+                System.out.print("Type in the Source Data Folder Path:");
+                String path=sc.nextLine();
+                loadData(path);
             }
             else if(choice==4){
                 showNumberOfRecords();
