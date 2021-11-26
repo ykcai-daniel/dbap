@@ -6,12 +6,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
+import java.text.*;
 
 public class AdminMethods {
     private final Connection con;
+    private SimpleDateFormat frominput;
+    private SimpleDateFormat indatabase;
+    private Scanner sc;
 
     public void adminLoop() throws SQLException, IOException {
         while(true){
+            System.out.println();
             System.out.println("-----Operations for administrator menu-----");
             System.out.println("1. Create all tables");
             System.out.println("2. Delete all tables");
@@ -19,8 +24,7 @@ public class AdminMethods {
             System.out.println("4. Show number of records");
             System.out.println("5. Return to the main menu");
             System.out.print("Enter Your Choice:");
-            Scanner sc = new Scanner(System.in);
-            int choice = sc.nextInt();
+            int choice = Integer.parseInt(sc.nextLine());
             if(choice==1){
                 createTable();
             }
@@ -28,11 +32,7 @@ public class AdminMethods {
                 deleteAllTable();
             }
             else if(choice==3){
-                sc.nextLine();
-                System.out.println("");
-                System.out.print("Type in the Source Data Folder Path:");
-                String path=sc.nextLine();
-                loadData(path);
+                loadData();
             }
             else if(choice==4){
                 showNumberOfRecords();
@@ -48,6 +48,9 @@ public class AdminMethods {
 	
     public AdminMethods(Connection con) throws SQLException {
         this.con = con;
+        frominput = new SimpleDateFormat("dd/MM/yyyy");
+        indatabase = new SimpleDateFormat("yyyy-MM-dd");
+        sc = new Scanner(System.in);
     }
 
     private void createTable() throws SQLException {
@@ -90,7 +93,7 @@ public class AdminMethods {
         str = "CREATE TABLE book( " +
             "callnum VARCHAR(8), " +
             "title VARCHAR(30) NOT NULL, " +
-            "publish VARCHAR(10) NOT NULL, " +
+            "publish DATE NOT NULL, " +
             "rating FLOAT DEFAULT NULL, " +
             "tborrowed INTEGER NOT NULL DEFAULT 0, " +
             "bcid INTEGER NOT NULL, " +
@@ -102,7 +105,6 @@ public class AdminMethods {
         /*we can do these updates with an addition UPDATE statement*/
 
         /* callnum is a string that length is 8 */
-        /* publish is not date type actually. The given format in data is different from the real date format. */
         try{
             stmt.executeUpdate(str);
         }catch(Exception e){/*do nothing*/}
@@ -120,8 +122,8 @@ public class AdminMethods {
             "libuid VARCHAR(10), " +
             "callnum VARCHAR(8), " +
             "copynum INTEGER, " +
-            "checkout VARCHAR(10) NOT NULL , " +
-            "return_data VARCHAR(10) NOT NULL, " +
+            "checkout DATE NOT NULL , " +
+            "return_data DATE DEFAULT NULL, " +
             "PRIMARY KEY (libuid,callnum,copynum,checkout), " +
             "FOREIGN KEY (libuid) REFERENCES libuser(libuid), " +
             "FOREIGN KEY (callnum,copynum) REFERENCES copy(callnum, copynum))"; /*return can be null!!!!!*/
@@ -155,7 +157,10 @@ public class AdminMethods {
         System.out.println("Processing... Done. Database is removed.");
     }
 
-    private void loadData(String path) throws SQLException, IOException {
+    private void loadData() throws SQLException, IOException {
+        System.out.println();
+        System.out.print("Type in the Source Data Folder Path:");
+        String path=sc.nextLine();
         try{
             loadUserCatagory(path);
             loadLibuser(path);
@@ -227,6 +232,11 @@ public class AdminMethods {
         while((inputLine= br.readLine())!=null){
             inputLine = inputLine.replace("\'","\\\'");
             String[] splitedInput=inputLine.split("\t");
+            try {
+                splitedInput[4] = indatabase.format(frominput.parse(splitedInput[4]));
+            }catch (ParseException e) {
+                e.printStackTrace();
+            }
             String inputSQL="INSERT INTO book " +
                     "VALUES ('"+splitedInput[0]+"','" +
                     splitedInput[2] + "','" +
@@ -266,13 +276,34 @@ public class AdminMethods {
         while((inputLine= br.readLine())!=null){
             inputLine = inputLine.replace("\'","\\\'");
             String[] splitedInput=inputLine.split("\t");
-            String inputSQL="INSERT INTO borrow " +
-                    "VALUES ('"+splitedInput[2]+"','" +
-                    splitedInput[0] + "'," +
-                    splitedInput[1] + ",'" +
-                    splitedInput[3] + "','" +
-                    splitedInput[4] + "')";
-            stmt.executeUpdate(inputSQL);
+            if(!splitedInput[4].equals("null")){
+                try {
+                    splitedInput[3] = indatabase.format(frominput.parse(splitedInput[3]));
+                    splitedInput[4] = indatabase.format(frominput.parse(splitedInput[4]));
+                }catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                String inputSQL="INSERT INTO borrow " +
+                        "VALUES ('"+splitedInput[2]+"','" +
+                        splitedInput[0] + "'," +
+                        splitedInput[1] + ",'" +
+                        splitedInput[3] + "','" +
+                        splitedInput[4] + "')";
+                stmt.executeUpdate(inputSQL);
+            }
+            else {
+                try {
+                    splitedInput[3] = indatabase.format(frominput.parse(splitedInput[3]));
+                }catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                String inputSQL="INSERT INTO borrow " +
+                        "VALUES ('"+splitedInput[2]+"','" +
+                        splitedInput[0] + "'," +
+                        splitedInput[1] + ",'" +
+                        splitedInput[3] + "',null)";
+                stmt.executeUpdate(inputSQL);
+            }
         }
         stmt.close();
     }
