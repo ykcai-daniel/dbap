@@ -33,9 +33,7 @@ public class AdminMethods {
                 deleteAllTable();
             }
             else if(choice==3){
-                System.out.print("Type in the Source Data Folder Path:");
-                String path=sc.nextLine();
-                loadData(path);
+                loadData();
             }
             else if(choice==4){
                 showNumberOfRecords();
@@ -172,7 +170,7 @@ public class AdminMethods {
             loadCopy(path);
             loadBorrow(path);
             loadAuthorship(path);
-            System.out.println("Processing...Done. Data is inputted to the database.");
+            System.out.println("Processing... Done. Data is inputted to the database.");
         }catch(FileNotFoundException e){
             System.out.println("Cannot find the datafile.");
         }
