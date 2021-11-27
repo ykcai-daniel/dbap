@@ -1,10 +1,8 @@
 package com.csci;
 
+import java.awt.desktop.SystemEventListener;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Scanner;
 
 public class UserMethods {
@@ -46,7 +44,8 @@ public class UserMethods {
                     }catch(Exception e){/*do nothing*/}
                 }
                 else{
-                    System.out.println("Illegal input");
+                    System.out.println("Illegal input!");
+                    continue;
                 }
             }
             else if(choice == 2){
@@ -77,7 +76,7 @@ public class UserMethods {
         String aname = "";
         Float rating = null;
         int numAvailableCopy = 0;
-        String sql = "SELECT title, rating, bcid FROM book WHERE callnum = ' " + callNumber + " '";
+        String sql = "SELECT title, rating, bcid FROM book WHERE callnum = '" + callNumber + "'";
         Statement stmt = con.createStatement();
         ResultSet rset = stmt.executeQuery(sql);
         if(rset.next()){
@@ -87,19 +86,19 @@ public class UserMethods {
             if(rset.wasNull()){
                 rating = null;
             }
-            sql = "SELECT bcname FROM book_category WHERE bcid = ' " + String.valueOf(bcid) + " '";
+            sql = "SELECT bcname FROM book_category WHERE bcid = '" + String.valueOf(bcid) + "'";
             rset = stmt.executeQuery(sql);
             rset.next();
             bcname = rset.getString("bcname");
-            sql = "SELECT aname FROM authorship WHERE callnum = ' " + callNumber + " '";
+            sql = "SELECT aname FROM authorship WHERE callnum = '" + callNumber + "'";
             rset = stmt.executeQuery(sql);
             rset.next();
             aname = rset.getString("aname");
-            sql = "SELECT COUNT(*) FROM borrow WHERE callnum = ' " + String.valueOf(bcid) + " ' AND return_date = NULL";
+            sql = "SELECT COUNT(*) FROM borrow WHERE callnum = '" + callNumber + "' AND return_date IS NULL";
             rset = stmt.executeQuery(sql);
             rset.next();
             int numBorrowedCopy = rset.getInt(1);
-            sql = "SELECT COUNT(*) FROM copy WHERE callnum = ' " + String.valueOf(bcid) + " '";
+            sql = "SELECT COUNT(*) FROM copy WHERE callnum = '" + callNumber + "'";
             rset = stmt.executeQuery(sql);
             rset.next();
             numAvailableCopy = rset.getInt(1) - numBorrowedCopy;
@@ -109,28 +108,58 @@ public class UserMethods {
             else
                 System.out.println(String.valueOf(rating) + "|" + String.valueOf(numAvailableCopy) + "|");
         }
+        rset.close();
+        stmt.close();
     }
 
     private void searchForBookByTitle(String title) throws SQLException{
-        String sql = "SELECT callnum FROM book WHERE title = ' " + title + " '";
+        String sql = "SELECT callnum FROM book WHERE title = '" + title + "' ORDER BY callnum ASC";
         Statement stmt = con.createStatement();
         ResultSet rset = stmt.executeQuery(sql);
         while(rset.next()){
             searchForBookByCallNumber(rset.getString("callnum"));
         }
+        rset.close();
+        stmt.close();
     }
 
     private void searchForBookByAuthor(String author) throws SQLException{
-        String sql = "SELECT callnum FROM authorship WHERE aname = ' " + author + " '";
+        String sql = "SELECT callnum FROM authorship WHERE aname = '" + author + "' ORDER BY callnum ASC";
         Statement stmt = con.createStatement();
         ResultSet rset = stmt.executeQuery(sql);
         while(rset.next()){
             searchForBookByCallNumber(rset.getString("callnum"));
         }
+        rset.close();
+        stmt.close();
     }
 
     private void showBorrowRecord(String userID) throws SQLException{
-
+        System.out.println("Loan Record:");
+        System.out.println("|CallNum|CopyNum|Title|Author|Check-out|Returned?|");
+        String sql = "SELECT callnum, copynum, checkout, return_date FROM borrow WHERE libuid = '" + userID + "' ORDER BY checkout DESC";
+        Statement stmt = con.createStatement();
+        ResultSet rset = stmt.executeQuery(sql);
+        while(rset.next()){
+            String callNumber = rset.getString("callnum");
+            int copyNumber = rset.getInt("copynum");
+            Date checkoutDate = rset.getDate("checkout");
+            Date returnDate = rset.getDate("return_date");
+            String returned = "Yes";
+            if(rset.wasNull()){
+                returned = "No";
+            }
+            Statement stmt2 = con.createStatement();
+            ResultSet rset2 = stmt2.executeQuery("SELECT aname FROM authorship WHERE callnum = '" + callNumber + "'");
+            rset2.next();
+            String author = rset2.getString("aname");
+            rset2 = stmt2.executeQuery("SELECT title FROM book WHERE callnum = '" + callNumber + "'");
+            rset2.next();
+            String title = rset2.getString("title");
+            System.out.println("|" + callNumber + "|" + String.valueOf(copyNumber) + "|" + title + "|" + author + "|" + checkoutDate.toString() + "|" + returned + "|");
+        }
+        rset.close();
+        stmt.close();
     }
 
 }
