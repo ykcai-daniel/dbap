@@ -95,7 +95,7 @@ public class UserMethods {
             rset = stmt.executeQuery(sql);
             rset.next();
             aname = rset.getString("aname");
-            sql = "SELECT COUNT(*) FROM borrow WHERE callnum = ' " + String.valueOf(bcid) + " ' AND return_data = NULL";
+            sql = "SELECT COUNT(*) FROM borrow WHERE callnum = ' " + String.valueOf(bcid) + " ' AND return_date = NULL";
             rset = stmt.executeQuery(sql);
             rset.next();
             int numBorrowedCopy = rset.getInt(1);
