@@ -124,7 +124,7 @@ public class AdminMethods {
             "callnum VARCHAR(8), " +
             "copynum INTEGER, " +
             "checkout DATE NOT NULL , " +
-            "return_date DATE DEFAULT NULL, " +
+            "return_date DATE DEFAULT NULL," +
             "PRIMARY KEY (libuid,callnum,copynum,checkout), " +
             "FOREIGN KEY (libuid) REFERENCES libuser(libuid), " +
             "FOREIGN KEY (callnum,copynum) REFERENCES copy(callnum, copynum))"; /*return can be null!!!!!*/
