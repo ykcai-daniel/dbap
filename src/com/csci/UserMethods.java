@@ -106,14 +106,20 @@ public class UserMethods {
             else
                 System.out.println(String.valueOf(rating) + "|" + String.valueOf(numAvailableCopy) + "|");
         }
+        else
+            System.out.println("Call number " + callNumber + " not found!");
         rset.close();
         stmt.close();
     }
 
     private void searchForBookByTitle(String title) throws SQLException{
-        String sql = "SELECT callnum FROM book WHERE title = '" + title + "' ORDER BY callnum ASC";
+        String sql = "SELECT callnum FROM book WHERE title LIKE '%" + title + "%' ORDER BY callnum ASC";
         Statement stmt = con.createStatement();
         ResultSet rset = stmt.executeQuery(sql);
+        if(!rset.isBeforeFirst()){
+            System.out.println("Title " + title + " not found!");
+            return;
+        }
         while(rset.next()){
             searchForBookByCallNumber(rset.getString("callnum"));
         }
@@ -122,9 +128,13 @@ public class UserMethods {
     }
 
     private void searchForBookByAuthor(String author) throws SQLException{
-        String sql = "SELECT callnum FROM authorship WHERE aname = '" + author + "' ORDER BY callnum ASC";
+        String sql = "SELECT callnum FROM authorship WHERE aname LIKE '%" + author + "%' ORDER BY callnum ASC";
         Statement stmt = con.createStatement();
         ResultSet rset = stmt.executeQuery(sql);
+        if(!rset.isBeforeFirst()){
+            System.out.println("Author " + author + " not found!");
+            return;
+        }
         while(rset.next()){
             searchForBookByCallNumber(rset.getString("callnum"));
         }
@@ -138,6 +148,10 @@ public class UserMethods {
         String sql = "SELECT callnum, copynum, checkout, return_date FROM borrow WHERE libuid = '" + userID + "' ORDER BY checkout DESC";
         Statement stmt = con.createStatement();
         ResultSet rset = stmt.executeQuery(sql);
+        if(!rset.isBeforeFirst()){
+            System.out.println("No record found for userID " + userID);
+            return;
+        }
         while(rset.next()){
             String callNumber = rset.getString("callnum");
             int copyNumber = rset.getInt("copynum");
