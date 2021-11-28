@@ -8,7 +8,7 @@ public class LibrarianMethod {
 
     private String formatDate(String hkDate){
         String ans;
-        String[] splitedDate=hkDate.split("-");
+        String[] splitedDate=hkDate.split("/");
         ans=splitedDate[2]+"-"+splitedDate[1]+"-"+splitedDate[0];
         return ans;
     }
@@ -98,11 +98,6 @@ public class LibrarianMethod {
                 updateBorrowedPS.setString(2,callNum);
                 updateBorrowedPS.setInt(3,copyNum);
                 updateBorrowedPS.executeUpdate();
-                //update tborrowed in book
-                String updateBook="UPDATE book SET tborrowed=tborrowed+1 WHERE callnum=?";
-                PreparedStatement psBook=con.prepareStatement(updateBook);
-                psBook.setString(1,callNum);
-                psBook.executeUpdate();
                 System.out.println("Book borrowing performed successfully");
             }
             else{
@@ -122,14 +117,12 @@ public class LibrarianMethod {
         String callNum=sc.nextLine();
         System.out.print("Enter The Copy Number: ");
         int copyNum=Integer.parseInt(sc.nextLine());
-        String updateRecords="UPDATE borrow" +
-                "SET return_date=current_date()" +
-                "WHERE (libuid=? AND callnum=? AND copynum=? AND return_date IS NULL)";
-        PreparedStatement ps=con.prepareStatement(updateRecords);
-        ps.setString(1,userID);
-        ps.setString(2,callNum);
-        ps.setInt(3,copyNum);
-        int edited=ps.executeUpdate();
+        String updateRecords="UPDATE borrow SET return_date=current_date() WHERE (libuid=? AND callnum=? AND copynum=? AND return_date IS NULL)";
+        PreparedStatement updateRecordsPS=con.prepareStatement(updateRecords);
+        updateRecordsPS.setString(1,userID);
+        updateRecordsPS.setString(2,callNum);
+        updateRecordsPS.setInt(3,copyNum);
+        int edited=updateRecordsPS.executeUpdate();
         if(edited==0){
             //test foreign key violations
             System.out.println("Error: Borrow record not found");
@@ -137,7 +130,7 @@ public class LibrarianMethod {
         else{
             do{
                 int userScore;
-                System.out.println("Enter Your Rating of the Book");
+                System.out.print("Enter Your Rating of the Book:");
                 try{
                     userScore=Integer.parseInt(sc.nextLine());
                 }
@@ -146,24 +139,16 @@ public class LibrarianMethod {
                     continue;
                 }
                 if(userScore<=10&&userScore>=1){
-                    String getTimeBorrowed="SELECT tborrowed,rating FROM book WHERE callnum="+callNum;
-                    ResultSet rs=con.createStatement().executeQuery(getTimeBorrowed);
-                    int tborrowed;
-                    double rating;
-                    rs.next();
-                    tborrowed=rs.getInt("tborrowed");
-                    if(tborrowed==0){
-                        rating=userScore;
-                    }
-                    else{
-                        double previousRating=rs.getInt("rating");
-                        rating=(previousRating*tborrowed+userScore)/(tborrowed+1);
-                    }
-                    String updateBook="UPDATE book SET rating=? WHERE callnum=?";
+                    String updateBookRating="UPDATE book SET rating=(1.0*coalesce(rating,0)*tborrowed+?*1.0)/(1.0*tborrowed+1)*1.0 WHERE callnum=?";
+                    PreparedStatement bookRatingPS=con.prepareStatement(updateBookRating);
+                    bookRatingPS.setInt(1,userScore);
+                    bookRatingPS.setString(2,callNum);
+                    bookRatingPS.executeUpdate();
+                    //update tborrowed in book
+                    String updateBook="UPDATE book SET tborrowed=tborrowed+1 WHERE callnum=?";
                     PreparedStatement psBook=con.prepareStatement(updateBook);
-                    ps.setFloat(1, (float) rating);
-                    ps.setString(2,callNum);
-                    ps.executeUpdate();
+                    psBook.setString(1,callNum);
+                    psBook.executeUpdate();
                     System.out.println("Book returning performed successfully");
                     break;
                 }
@@ -179,19 +164,16 @@ public class LibrarianMethod {
         String startingDate=formatDate(sc.nextLine());
         System.out.print("Type in the ending date [dd/mm/yyyy]: ");
         String endDate=formatDate(sc.nextLine());
-        String unreturnedDuringQ="SELECT libuid,callnum,copynum,checkout" +
-                "FROM borrow" +
-                "WHERE (return_date IS NULL) AND checkout>=? AND checkout<=?" +
-                "ORDER BY checkout";
+        String unreturnedDuringQ="SELECT libuid,callnum,copynum,checkout FROM borrow WHERE (return_date IS NULL) AND checkout>=? AND checkout<=? ORDER BY checkout";
         PreparedStatement ps=con.prepareStatement(unreturnedDuringQ);
-        ps.setString(1,startingDate);
-        ps.setString(2,endDate);
+        ps.setDate(1,Date.valueOf(startingDate));
+        ps.setDate(2,Date.valueOf(endDate));
         ResultSet rs=ps.executeQuery();
         System.out.println("List of UnReturned Book:");
         System.out.println("|LibUID|CallNum|CopyNum|Checkout|");
         while(rs.next()){
             System.out.print("|"+rs.getString(1));
-            System.out.print(""+rs.getString(2));
+            System.out.print("|"+rs.getString(2));
             System.out.print("|"+ rs.getInt(3));
             System.out.print("|"+rs.getString(4));
             System.out.print("|\n");
