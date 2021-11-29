@@ -1,6 +1,7 @@
 package com.csci;
 import java.io.IOException;
 import java.sql.*;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 //ssh yhcai0@linux2.cse.cuhk.edu.hk
@@ -17,8 +18,10 @@ public class Main {
 			con=DriverManager.getConnection(dbAddress,dbUserName,dbPassword);
 			//System.out.print("Connection established");
 		} catch (SQLException e) {
+			System.out.println("Cannot connect to the database. Please check your connection and restart the application");
 			e.printStackTrace();
 		}catch(ClassNotFoundException e){
+			System.out.println("Cannot find the database driver");
 			e.printStackTrace();
 		}
 		AdminMethods am=new AdminMethods(con);
@@ -35,7 +38,18 @@ public class Main {
 			System.out.println("4. Exit this program");
 			System.out.print("Enter Your Choice:");	//menu
 			Scanner sc = new Scanner(System.in);
-			int choice = sc.nextInt();
+			int choice;
+			try {
+				choice = sc.nextInt();
+			}
+			catch (NumberFormatException e){
+				System.out.println("Illegal input");
+				continue;
+			}
+			catch (InputMismatchException e){
+				System.out.println("Illegal input");
+				continue;
+			}
 			if(choice==1){
 				am.adminLoop();
 			}
@@ -49,7 +63,7 @@ public class Main {
 				break;
 			}
 			else{
-				System.out.print("Illegal input");
+				System.out.println("Illegal input");
 			}
 		}
 	}
