@@ -15,35 +15,47 @@ public class UserMethods {
             System.out.println("3. Return to the main menu");
             System.out.print("Enter Your Choice:");
             Scanner sc = new Scanner(System.in);
-            int choice = Integer.parseInt(sc.nextLine());
+            int choice = 0;
+            try{
+                choice = Integer.parseInt(sc.nextLine());
+            }
+            catch(NumberFormatException e){
+                System.out.println("Invalid input!");
+                continue;
+            }
             if(choice == 1){
                 System.out.println("Choose the Search criterion:");
                 System.out.println("1. call number");
                 System.out.println("2. title");
                 System.out.println("3. author");
                 System.out.print("Choose the Search criterion: ");
-                choice = Integer.parseInt(sc.nextLine());
+                try{
+                    choice = Integer.parseInt(sc.nextLine());
+                }
+                catch(NumberFormatException e){
+                    System.out.println("Invalid input!");
+                    continue;
+                }
                 System.out.print("Type in the Search Keyword: ");
                 String keyword = sc.nextLine();
                 System.out.println("|Call Num|Title|Book Category|Author|Rating|Available No. of Copy|");
-                if(choice == 1){
-                    try{
+                try {
+                    if (choice == 1) {
                         searchForBookByCallNumber(keyword);
-                    }catch(Exception e){/*do nothing*/}
-                }
-                else if(choice == 2){
-                    try{
+                    } else if (choice == 2) {
                         searchForBookByTitle(keyword);
-                    }catch (Exception e){/*do nothing*/}
-                }
-                else if(choice == 3){
-                    try{
+                    } else if (choice == 3) {
                         searchForBookByAuthor(keyword);
-                    }catch(Exception e){/*do nothing*/}
+                    } else {
+                        System.out.println("Error: Input should be an integer within 1 to 3!");
+                        continue;
+                    }
                 }
-                else{
-                    System.out.println("Illegal input!");
-                    continue;
+                catch(SQLException e){
+                    System.out.println("Cannot execute command in the database. Please check your connection and try again.");
+                }
+                catch(Exception e){
+                    /*do nothing*/
                 }
             }
             else if(choice == 2){
@@ -51,13 +63,18 @@ public class UserMethods {
                 String userID = sc.nextLine();
                 try{
                     showBorrowRecord(userID);
-                }catch(Exception e){/*do nothing*/}
+                }catch(SQLException e){
+                    System.out.println("Cannot execute command in the database. Please check your connection and try again.");
+                }
+                catch(Exception e){
+                    /*do nothing*/
+                }
             }
             else if(choice == 3){
                 break;
             }
             else{
-                System.out.println("Illegal input!");
+                System.out.println("Error: Input should be an integer within 1 to 3!");
                 continue;
             }
         }
