@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.text.*;
 
@@ -24,26 +25,38 @@ public class AdminMethods {
             System.out.println("4. Show number of records");
             System.out.println("5. Return to the main menu");
             System.out.print("Enter Your Choice:");
-            Scanner sc = new Scanner(System.in);
-            int choice = Integer.parseInt(sc.nextLine());
-            if(choice==1){
-                createTable();
+            try{
+                int choice = Integer.parseInt(sc.nextLine());
+                if(choice==1){
+                    createTable();
+                }
+                else if(choice==2){
+                    deleteAllTable();
+                }
+                else if(choice==3){
+                    loadData();
+                }
+                else if(choice==4){
+                    showNumberOfRecords();
+                }
+                else if(choice==5){
+                    break;
+                }
+                else{
+                    System.out.println("Error: Input should be an integer within 1 to 5!");
+                    continue;
+                }
             }
-            else if(choice==2){
-                deleteAllTable();
+            catch (SQLException e){
+                System.out.println("Cannot execute command in the database. Please check your connection and try again.");
             }
-            else if(choice==3){
-                loadData();
+            catch (InputMismatchException e){
+                System.out.println("Invalid input!");
             }
-            else if(choice==4){
-                showNumberOfRecords();
+            catch (NumberFormatException e){
+                System.out.println("Invalid input!");
             }
-            else if(choice==5){
-                break;
-            }
-            else{
-                System.out.print("Illegal input");
-            }
+            catch (Exception e){}
         }
     }
 	
@@ -67,7 +80,7 @@ public class AdminMethods {
             "CHECK (ucid<10 AND ucid > 0))";
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){/*do nothing*/}
+        }catch(Exception e){System.out.println("Table user_category exist.");}
         
         str = "CREATE TABLE libuser( " +
             "libuid VARCHAR(10), " +
@@ -80,7 +93,7 @@ public class AdminMethods {
             "CHECK (AGE<1000 AND AGE>0))";/*three digit age?*/
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){/*do nothing*/}
+        }catch(Exception e){System.out.println("Table libuser exist.");}
         
         str = "CREATE TABLE book_category( " +
             "bcid INTEGER, " +
@@ -89,7 +102,7 @@ public class AdminMethods {
             "CHECK(bcid>0 AND bcid<10))";
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){/*do nothing*/}
+        }catch(Exception e){System.out.println("Table book_category exist.");}
         
         str = "CREATE TABLE book( " +
             "callnum VARCHAR(8), " +
@@ -108,7 +121,7 @@ public class AdminMethods {
         /* callnum is a string that length is 8 */
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){/*do nothing*/}
+        }catch(Exception e){System.out.println("Table book exist.");}
         
         str = "CREATE TABLE copy( " +
             "callnum VARCHAR(8), " +
@@ -117,7 +130,7 @@ public class AdminMethods {
             "FOREIGN KEY (callnum) REFERENCES book(callnum))";  /*what is copynum*/
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){/*do nothing*/}
+        }catch(Exception e){System.out.println("Table copy exist.");}
         
         str = "CREATE TABLE borrow( " +
             "libuid VARCHAR(10), " +
@@ -140,7 +153,7 @@ public class AdminMethods {
             "FOREIGN KEY (callnum) REFERENCES book(callnum))";
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){/*do nothing*/}
+        }catch(Exception e){System.out.println("Table authorship exist.");}
         stmt.close();
         System.out.println("Processing... Done. Database is initialized.");
     }
@@ -185,7 +198,11 @@ public class AdminMethods {
             String[] splitedInput = inputLine.split("\t");
             String inputSQL = "INSERT INTO user_category " +
                     "VALUES(" + splitedInput[0] + "," + splitedInput[1] + "," + splitedInput[2] + ")";
-            stmt.executeUpdate(inputSQL);
+            try{
+                stmt.executeUpdate(inputSQL);
+            }catch(SQLException e){
+                System.out.println("Wrong data format in user category: "+ inputSQL);
+            }
         }
         stmt.close();
     }
@@ -197,6 +214,7 @@ public class AdminMethods {
         Statement stmt= con.createStatement();
         while((inputLine= br.readLine())!=null){
             inputLine = inputLine.replace("\'","\\\'");
+            inputLine = inputLine.replace("\"","\\\"");
             /* To avoid interference of char ' */
             String[] splitedInput=inputLine.split("\t");
             String inputSQL="INSERT INTO libuser " +
@@ -205,7 +223,11 @@ public class AdminMethods {
                     splitedInput[2] + ",'" +
                     splitedInput[3] + "'," +
                     splitedInput[4] + ")";
-            stmt.executeUpdate(inputSQL);
+            try{
+                stmt.executeUpdate(inputSQL);
+            }catch(SQLException e){
+                System.out.println("Wrong data format in library user: "+ inputSQL);
+            }
         }
         stmt.close();
     }
@@ -217,10 +239,15 @@ public class AdminMethods {
         Statement stmt= con.createStatement();
         while((inputLine= br.readLine())!=null){
             inputLine = inputLine.replace("\'","\\\'");
+            inputLine = inputLine.replace("\"","\\\"");
             String[] splitedInput=inputLine.split("\t");
             String inputSQL="INSERT INTO book_category " +
                     "VALUES ("+splitedInput[0]+",'"+splitedInput[1]+"')";
-            stmt.executeUpdate(inputSQL);
+            try{
+                stmt.executeUpdate(inputSQL);
+            }catch(SQLException e){
+                System.out.println("Wrong data format in book category: "+ inputSQL);
+            }
         }
         stmt.close();
     }
@@ -232,6 +259,7 @@ public class AdminMethods {
         Statement stmt= con.createStatement();
         while((inputLine= br.readLine())!=null){
             inputLine = inputLine.replace("\'","\\\'");
+            inputLine = inputLine.replace("\"","\\\"");
             String[] splitedInput=inputLine.split("\t");
             try {
                 splitedInput[4] = indatabase.format(frominput.parse(splitedInput[4]));
@@ -245,7 +273,11 @@ public class AdminMethods {
                     splitedInput[5] + "," +
                     splitedInput[6] + "," +
                     splitedInput[7] + ")";
-            stmt.executeUpdate(inputSQL);
+            try{
+                stmt.executeUpdate(inputSQL);
+            }catch(SQLException e){
+                System.out.println("Wrong data format in book: "+ inputSQL);
+            }
         }
         stmt.close();
     }
@@ -257,13 +289,18 @@ public class AdminMethods {
         Statement stmt= con.createStatement();
         while((inputLine= br.readLine())!=null){
             inputLine = inputLine.replace("\'","\\\'");
+            inputLine = inputLine.replace("\"","\\\"");
             String[] splitedInput=inputLine.split("\t");
             /*Different from other table. Copynum means how many copy we have. For each copy, we need to insert a tuple. */
             int callnum = Integer.parseInt(splitedInput[1]);
             for(int i=1; i <= callnum; i++){
                 String inputSQL="INSERT INTO copy " +
                         "VALUES ('"+splitedInput[0]+"',"+ i +")";
-                stmt.executeUpdate(inputSQL);
+                try{
+                    stmt.executeUpdate(inputSQL);
+                }catch(SQLException e){
+                    System.out.println("Wrong data format in copy: "+ inputSQL);
+                }
             }
         }
         stmt.close();
@@ -276,6 +313,7 @@ public class AdminMethods {
         Statement stmt= con.createStatement();
         while((inputLine= br.readLine())!=null){
             inputLine = inputLine.replace("\'","\\\'");
+            inputLine = inputLine.replace("\"","\\\"");
             String[] splitedInput=inputLine.split("\t");
             if(!splitedInput[4].equals("null")){
                 try {
@@ -290,7 +328,11 @@ public class AdminMethods {
                         splitedInput[1] + ",'" +
                         splitedInput[3] + "','" +
                         splitedInput[4] + "')";
-                stmt.executeUpdate(inputSQL);
+                try{
+                    stmt.executeUpdate(inputSQL);
+                }catch(SQLException e){
+                    System.out.println("Wrong data format in borrow: "+ inputSQL);
+                }
             }
             else {
                 try {
@@ -303,7 +345,11 @@ public class AdminMethods {
                         splitedInput[0] + "'," +
                         splitedInput[1] + ",'" +
                         splitedInput[3] + "',null)";
-                stmt.executeUpdate(inputSQL);
+                try{
+                    stmt.executeUpdate(inputSQL);
+                }catch(SQLException e){
+                    System.out.println("Wrong data format in borrow: "+ inputSQL);
+                }
             }
         }
         stmt.close();
@@ -316,10 +362,15 @@ public class AdminMethods {
         Statement stmt= con.createStatement();
         while((inputLine= br.readLine())!=null){
             inputLine = inputLine.replace("\'","\\\'");
+            inputLine = inputLine.replace("\"","\\\"");
             String[] splitedInput=inputLine.split("\t");
             String inputSQL="INSERT INTO authorship " +
                     "VALUES ('"+splitedInput[3]+"','"+splitedInput[0]+"')";
-            stmt.executeUpdate(inputSQL);
+            try{
+                stmt.executeUpdate(inputSQL);
+            }catch(SQLException e){
+                System.out.println("Wrong data format in authorship: "+ inputSQL);
+            }
         }
         stmt.close();
     }
