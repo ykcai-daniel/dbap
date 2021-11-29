@@ -15,7 +15,7 @@ public class Main {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			con=DriverManager.getConnection(dbAddress,dbUserName,dbPassword);
-			System.out.print("Connection established");
+			//System.out.print("Connection established");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}catch(ClassNotFoundException e){
