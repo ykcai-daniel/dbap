@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.text.*;
 
@@ -24,8 +25,8 @@ public class AdminMethods {
             System.out.println("4. Show number of records");
             System.out.println("5. Return to the main menu");
             System.out.print("Enter Your Choice:");
-            int choice = Integer.parseInt(sc.nextLine());
             try{
+                int choice = Integer.parseInt(sc.nextLine());
                 if(choice==1){
                     createTable();
                 }
@@ -42,9 +43,20 @@ public class AdminMethods {
                     break;
                 }
                 else{
-                    System.out.print("Illegal input");
+                    System.out.println("Error: Input should be an integer within 1 to 5!");
+                    continue;
                 }
-            } catch (SQLException e){};
+            }
+            catch (SQLException e){
+                System.out.println("Cannot execute command in the database. Please check your connection and try again.");
+            }
+            catch (InputMismatchException e){
+                System.out.println("Invalid input!");
+            }
+            catch (NumberFormatException e){
+                System.out.println("Invalid input!");
+            }
+            catch (Exception e){}
         }
     }
 	
@@ -68,7 +80,7 @@ public class AdminMethods {
             "CHECK (ucid<10 AND ucid > 0))";
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){System.out.println("Table user_category exist.")}
+        }catch(Exception e){System.out.println("Table user_category exist.");}
         
         str = "CREATE TABLE libuser( " +
             "libuid VARCHAR(10), " +
@@ -81,7 +93,7 @@ public class AdminMethods {
             "CHECK (AGE<1000 AND AGE>0))";/*three digit age?*/
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){System.out.println("Table libuser exist.")}
+        }catch(Exception e){System.out.println("Table libuser exist.");}
         
         str = "CREATE TABLE book_category( " +
             "bcid INTEGER, " +
@@ -90,7 +102,7 @@ public class AdminMethods {
             "CHECK(bcid>0 AND bcid<10))";
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){System.out.println("Table book_category exist.")}
+        }catch(Exception e){System.out.println("Table book_category exist.");}
         
         str = "CREATE TABLE book( " +
             "callnum VARCHAR(8), " +
@@ -109,7 +121,7 @@ public class AdminMethods {
         /* callnum is a string that length is 8 */
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){System.out.println("Table book exist.")}
+        }catch(Exception e){System.out.println("Table book exist.");}
         
         str = "CREATE TABLE copy( " +
             "callnum VARCHAR(8), " +
@@ -118,7 +130,7 @@ public class AdminMethods {
             "FOREIGN KEY (callnum) REFERENCES book(callnum))";  /*what is copynum*/
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){System.out.println("Table copy exist.")}
+        }catch(Exception e){System.out.println("Table copy exist.");}
         
         str = "CREATE TABLE borrow( " +
             "libuid VARCHAR(10), " +
@@ -141,7 +153,7 @@ public class AdminMethods {
             "FOREIGN KEY (callnum) REFERENCES book(callnum))";
         try{
             stmt.executeUpdate(str);
-        }catch(Exception e){System.out.println("Table authorship exist.")}
+        }catch(Exception e){System.out.println("Table authorship exist.");}
         stmt.close();
         System.out.println("Processing... Done. Database is initialized.");
     }
@@ -188,7 +200,7 @@ public class AdminMethods {
                     "VALUES(" + splitedInput[0] + "," + splitedInput[1] + "," + splitedInput[2] + ")";
             try{
                 stmt.executeUpdate(inputSQL);
-            }catch(SQLException){
+            }catch(SQLException e){
                 System.out.println("Wrong data format in user category: "+ inputSQL);
             }
         }
@@ -213,7 +225,7 @@ public class AdminMethods {
                     splitedInput[4] + ")";
             try{
                 stmt.executeUpdate(inputSQL);
-            }catch(SQLException){
+            }catch(SQLException e){
                 System.out.println("Wrong data format in library user: "+ inputSQL);
             }
         }
@@ -233,7 +245,7 @@ public class AdminMethods {
                     "VALUES ("+splitedInput[0]+",'"+splitedInput[1]+"')";
             try{
                 stmt.executeUpdate(inputSQL);
-            }catch(SQLException){
+            }catch(SQLException e){
                 System.out.println("Wrong data format in book category: "+ inputSQL);
             }
         }
@@ -263,7 +275,7 @@ public class AdminMethods {
                     splitedInput[7] + ")";
             try{
                 stmt.executeUpdate(inputSQL);
-            }catch(SQLException){
+            }catch(SQLException e){
                 System.out.println("Wrong data format in book: "+ inputSQL);
             }
         }
@@ -286,7 +298,7 @@ public class AdminMethods {
                         "VALUES ('"+splitedInput[0]+"',"+ i +")";
                 try{
                     stmt.executeUpdate(inputSQL);
-                }catch(SQLException){
+                }catch(SQLException e){
                     System.out.println("Wrong data format in copy: "+ inputSQL);
                 }
             }
@@ -318,7 +330,7 @@ public class AdminMethods {
                         splitedInput[4] + "')";
                 try{
                     stmt.executeUpdate(inputSQL);
-                }catch(SQLException){
+                }catch(SQLException e){
                     System.out.println("Wrong data format in borrow: "+ inputSQL);
                 }
             }
@@ -335,7 +347,7 @@ public class AdminMethods {
                         splitedInput[3] + "',null)";
                 try{
                     stmt.executeUpdate(inputSQL);
-                }catch(SQLException){
+                }catch(SQLException e){
                     System.out.println("Wrong data format in borrow: "+ inputSQL);
                 }
             }
@@ -356,7 +368,7 @@ public class AdminMethods {
                     "VALUES ('"+splitedInput[3]+"','"+splitedInput[0]+"')";
             try{
                 stmt.executeUpdate(inputSQL);
-            }catch(SQLException){
+            }catch(SQLException e){
                 System.out.println("Wrong data format in authorship: "+ inputSQL);
             }
         }
